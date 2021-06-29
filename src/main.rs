@@ -1,15 +1,4 @@
 use structopt::StructOpt;
-// use crate::cli_handler::{validate_cli};
-mod cli;
-
-#[derive(Debug, StructOpt)]
-pub struct Cli {
-    #[structopt(short = "m", long = "input-metric")]
-    pub input_metric: String,
-
-    #[structopt(short = "v", long = "input-value")]
-    pub input_value: f32,
-}
 
 struct DataSize {
     pub b: f32,
@@ -23,7 +12,7 @@ impl DataSize {
     pub fn new(cli: Cli) -> DataSize {
         let default: f32 = 1024.0;
 
-        match cli.input_metric.as_ref() {
+        match cli.input_metric.as_str() {
             "b" => DataSize {
                 b: cli.input_value,
                 kb: cli.input_value * default.powi(-1),
@@ -79,13 +68,24 @@ pub fn valid_cli(cli: &Cli) -> bool {
     }
 }
 
+#[derive(Debug, StructOpt)]
+#[structopt(name = "simple converter", author = "gao-rangers", about = "An Flinter Example of DataSize Simple Conversion")]
+pub struct Cli {
+    #[structopt(short = "m", long = "input-metric", default_value = "b")]
+    pub input_metric: String,
+
+    #[structopt(short = "v", long = "input-value", default_value = "100")]
+    pub input_value: f32,
+}
+
 fn main() {
     let args = Cli::from_args();
+
     if valid_cli(&args) {
         let data: DataSize = DataSize::new(args);
         println!("Byte: {byte} \nKiloByte: {kilobyte} \nMegaByte: {megabyte} \nGigaByte: {gigabyte} \nTerraByte: {terrabyte} \n "
         , byte = data.b, kilobyte = data.kb,megabyte = data.mb,gigabyte = data.gb,terrabyte = data.tb);
     } else {
-        println!("Wrong format")
+        eprintln!("Wrong format")
     }
 }
